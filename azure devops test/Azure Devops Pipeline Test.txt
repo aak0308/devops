@@ -1,0 +1,24 @@
+Assumption - the webapi deployment is being done to an app service plan and the azure api management backend is pointing to the webapi and there is no changes to azure api management.
+
+1. Create CI trigger on master branch to trigger build everytime there is changes to master branch.
+2. CI pipeline would contain two template jobs to build both the webapp and webapi code and then 2 jobs for test execution and publish pipeline/build artifacts
+	- Each template job should contain below tasks
+		- Nuget Restore task to restore dependancies
+		- Dotnet Build task or VSBuild task to build the webapp or webapi
+		- Copy files task to copy the output of build files to staging directory
+	- Test Job should have below tasks - Should depend on both the build jobs configured in the templates for building webapp and webapi
+		- VSTest task to run the tests, enable continue on error to make sure all tests are triggered.
+		- Publish test result task to publish the results; enable failTaskOnFailedTests flag to mark the build as failed if any test fails.
+	- Publish Artifacts job should have below tasks and depends on test job -
+		- publish build artifacts for both webapp and webapi seperately as 2 different artifact drops
+
+3. Create a release pipeline with both the artifacts and 3 stages (dev, QA and Production). Enable continious deployment trigger for deployment to dev environment automatically once build is successfull.
+	- To deploy the webapp and webapi create 2 agent jobs for each stage with one to deplpoy webapp and one to deploy to webapi
+	- To be able to deploy to azure app service a service principle should be created in the project settings for the desired subscription and resource group.
+	- Deployment can be done to slots or directly to webapp if there are no deployment slots configured.
+
+4. Enable stage dependancy on release pipeline for QA and Production stage to be dependant on Dev and QA respectively. 
+
+5. Enable pre deployment approvals for release to be triggered for QA and Production environment.
+
+		

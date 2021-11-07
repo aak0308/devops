@@ -17,3 +17,7 @@ subnet1_address_space = ""
 subnet2_address_space = ""
 nsg_name = ""
 ddos_plan_name = ""
+
+#virtualMachine
+vm_name = ""
+vm_size = "Standard_F2"
